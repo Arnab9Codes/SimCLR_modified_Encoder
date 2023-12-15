@@ -9,6 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from utils import save_config_file, accuracy, save_checkpoint
 
+
 torch.manual_seed(0)
 
 
@@ -22,6 +23,7 @@ class SimCLR(object):
         self.writer = SummaryWriter()
         logging.basicConfig(filename=os.path.join(self.writer.log_dir, 'training.log'), level=logging.DEBUG)
         self.criterion = torch.nn.CrossEntropyLoss().to(self.args.device)
+        #print('model: ',self.model)
 
     def info_nce_loss(self, features):
 
@@ -71,9 +73,13 @@ class SimCLR(object):
 
                 images = images.to(self.args.device)
 
+                #print("images shape:", images.shape)
+
                 with autocast(enabled=self.args.fp16_precision):
                     features = self.model(images)
+                    #print("model output shape:", features.shape)
                     logits, labels = self.info_nce_loss(features)
+                    #print('logits shape:', logits.shape, 'labels shape:', labels.shape)
                     loss = self.criterion(logits, labels)
 
                 self.optimizer.zero_grad()
@@ -99,7 +105,7 @@ class SimCLR(object):
 
         logging.info("Training has finished.")
         # save model checkpoints
-        checkpoint_name = 'checkpoint_{:04d}.pth.tar'.format(self.args.epochs)
+        checkpoint_name = '{}_checkpoint_{:04d}.pth.tar'.format(self.args.arch, self.args.epochs)
         save_checkpoint({
             'epoch': self.args.epochs,
             'arch': self.args.arch,
