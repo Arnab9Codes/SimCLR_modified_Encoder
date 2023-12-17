@@ -12,7 +12,7 @@ class ResNetSimCLR(nn.Module):
         self.resnet_dict = {
             "resnet18": models.resnet18(pretrained=False, num_classes=out_dim),
             "resnet50": models.resnet50(pretrained=False, num_classes=out_dim),
-            "squeezenet": models.squeezenet1_0(pretrained=False)
+            "squeezenet": models.squeezenet1_0(pretrained=False, num_classes=out_dim)
         }
         print('outdim: ',out_dim)
 
@@ -22,14 +22,14 @@ class ResNetSimCLR(nn.Module):
         if 'squeezenet' in base_model:
 
             inC=self.backbone.classifier[1].in_channels
-            additional_fc_layer = nn.Sequential(nn.Linear(1000, 512), nn.ReLU(), nn.Linear(512, out_dim))
+            additional_fc_layer = nn.Sequential(nn.Linear(1000, 512), nn.ReLU(), nn.Linear(512, 10))
 
             # Access the existing classifier and add the additional FC layer
             #self.backbone.add_module('fc', additional_fc_layer)
             #self.backbone.classifier[1] = nn.Conv2d(512, out_dim, kernel_size=1, stride=1)
             #self.backbone.num_classes = out_dim
 
-            self.backbone=nn.Sequential(self.backbone, additional_fc_layer)
+            #self.backbone=nn.Sequential(self.backbone, additional_fc_layer)
             #print(self.backbone.1)
 
         else:
